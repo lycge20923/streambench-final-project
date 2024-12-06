@@ -4,7 +4,7 @@ from typing import Optional
 @dataclass
 class LLMArguments:
     model_name: Optional[str] = field(
-        default="Qwen/Qwen2.5-7B-Instruct",
+        default="google/gemma-2-9b-it",
         metadata={"help":"The name of llm."})
     device: Optional[str] = field(
         default='cuda:0'
@@ -28,7 +28,7 @@ class RAGArguments:
         default=42
     )
     top_k: Optional[int] = field(
-        default=16
+        default=8
     )
     order: Optional[str] = field(
         default="similar_at_top"
