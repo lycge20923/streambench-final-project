@@ -7,7 +7,7 @@ class LLMArguments:
         default="google/gemma-2-9b-it",
         metadata={"help":"The name of llm."})
     device: Optional[str] = field(
-        default='cuda:0'
+        default='cuda:1'
     )
     use_8bit: Optional[bool] = field(
         default=False,
@@ -31,13 +31,13 @@ class RAGArguments:
         default=8
     )
     order: Optional[str] = field(
-        default="similar_at_top"
+        default="similar_at_bottom"
     )
 
 @dataclass
 class ClassificationArguments:
     max_tokens: Optional[int] = field(
-        default=16
+        default=128
     )
 
 @dataclass

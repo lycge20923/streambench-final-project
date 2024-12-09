@@ -20,38 +20,34 @@ class ClassificationAgent(LLMModelAgent):
             prompt = f'''
             You have the following list of disease options:
             {self.disease_options}
-            
+
             You have the following patient information:
-            {self.symptom}
-            
-            Please analyze step-by-step, explain your reasoning:
+                        {self.symptom}
+
+            Please analyze briefly step-by-step. Provide only the essential reasoning in short sentences:
             A. ...
             B. ...
-            Finally, make a final prediction(in the format of  <number>. <diagnosis>):
+            Finally, make a final prediction in the format: <number>. <diagnosis>
             '''
+
+            
         else:
-            initial_text = "You are a professional medical doctor. Your work is analyze patient's symptom and give diagnosis."
+            initial_text = "You are a professional medical doctor. Your task is to analyze the patient's symptoms and provide a diagnosis."
             middle_text = ''
             if few_shot:
                 middle_text = f'''
-                Below are some simple examples of successful previous predictions.
+                Below are some simple examples of successful previous predictions with analysis.
             
                 {{few_shot_text}}
                 '''
             main_text = f'''
-            All possible diagnoses for you to choose from are as follows (one diagnosis per line, in the format of <number>. <diagnosis>):
+            All possible diagnoses for you to choose from are listed below (one diagnosis per line, in the format of <number>. <diagnosis>):
             {self.disease_options}
             
-            Here is a case:
-            {self.cot_example}
-            
-            The analysis and the prediction is:
-            {self.cot_result}
-            
-            Here is another case:
+            Here is the case you need to diagnose:
             {self.symptom}
             
-            After analysis(don't print the process, just think in your mind), the prediction is (in the format of  <number>. <diagnosis>):
+            Please follow a concise analysis process, using short sentences for key reasoning steps, and provide the final prediction in this format: <number>. <diagnosis>.
             '''
             prompt = initial_text + middle_text + main_text
         
@@ -69,8 +65,8 @@ class ClassificationAgent(LLMModelAgent):
                 prediction = random.choice(list(label2desc.keys()))
         else:
             if len(numbers) > 1:
-                print(Fore.YELLOW + f"Extracted numbers {numbers} is not exactly one. Select the first one." + Style.RESET_ALL)
-                prediction = numbers[0]
+                print(Fore.YELLOW + f"Extracted numbers {numbers} is not exactly one. Select the last one." + Style.RESET_ALL)
+                prediction = numbers[-1]
             else:
                 print(Fore.RED + f"Prediction {pred_text} has no extracted numbers. Randomly select one." + Style.RESET_ALL)
                 prediction = random.choice(list(label2desc.keys()))
@@ -90,7 +86,7 @@ class ClassificationAgent(LLMModelAgent):
         
         # generate for update
         self.question = self.symptom
-        self.answer = f"{str(prediction)}. {label2desc[int(prediction)]}"
+        self.answer = response + f"\nFinal Answer: {str(prediction)}. {label2desc[int(prediction)]}"
         
         # update the example and result for cot(chain of thought)
         if not self.cot_example or not self.cot_result:
