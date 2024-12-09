@@ -22,7 +22,7 @@ class LLMModelAgent(Agent):
         
         # set the max token for the output
         self.max_token = self.config["max_tokens"]
-        self.cot_max_token = 1024
+        self.cot_max_token = 128
         
     def _initialize_model(self) -> AutoModelForCausalLM:
         """
