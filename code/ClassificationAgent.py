@@ -22,7 +22,7 @@ class ClassificationAgent(LLMModelAgent):
             {self.disease_options}
 
             You have the following patient information:
-                        {self.symptom}
+            {self.symptom}
 
             Please analyze briefly step-by-step. Provide only the essential reasoning in short sentences:
             A. ...
