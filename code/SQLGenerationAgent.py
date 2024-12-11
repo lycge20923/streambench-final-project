@@ -16,45 +16,31 @@ class SQLGenerationAgent(LLMModelAgent):
         self.user_query = ''
 
     def design_prompt(self, few_shot = False):
-        if not self.cot_example or not self.cot_result:
-            prompt = f'''
-            You are performing prompt-to-SQL task
-            The Table Schema is:
+        if not few_shot:
+            prompt = f"""\
             {self.table_schema}
             
-            The user query is:{self.user_query}
+            -- Using valid SQLite, answer the following question for the tables provided above.
+            -- Question: {self.user_query}
             
-            You have to 
-            1. analyze step-by-step, explain your reasoning
-            A. ...
-            B. ...
-            2. Then, generate the SQL code in the format of ```sql\n<your_SQL_code>\n```:
-            '''
+            Now, generate the correct SQL code directly in the following format:
+            ```sql\n<your_SQL_code>\n```"""
         else:
-            initial_text = 'You are a professional SQL programmer. Your job is to generate SQL code based on user query.'
-            middle_text = ''
-            if few_shot:
-                middle_text = f'''
-                Below are some simple examples of successful previous predictions.
-                
-                {{few_shot_text}}
-                '''
-            main_text = f'''
-            Here is a case:
-            {self.cot_example}
+            prompt = f'''
+            You are performing the text-to-SQL task. Here are some examples:
             
-            The analysis and the prediction is:
-            {self.cot_result}
+            {{few_shot_text}}
             
-            Here is another case:
-            1. Table Schema:
-            {self.table_schema}
-            2. User query: {self.user_query}
+            Now it's your turn.
             
-            After analysis(don't print the process, just think in your mind), Generate the correct SQL code directly in the following format:```sql\n<your_SQL_code>\n```
+            -- SQL schema: {self.table_schema}
+            -- Using valid SQLite, answer the following question for the SQL schema provided above.
+            -- Question: {self.user_query}
+            
+            Now, generate the correct SQL code directly in the following format:
+            ```sql\n<your_SQL_code>\n```
             '''
-            prompt = initial_text + middle_text + main_text
-        return strip_all_lines(prompt.strip())
+        return strip_all_lines(prompt)
 
     @staticmethod
     def parse_sql(pred_text: str) -> str:
@@ -71,9 +57,10 @@ class SQLGenerationAgent(LLMModelAgent):
             print(Fore.RED + "No SQL code found in the response" + Style.RESET_ALL)
             sql_code = pred_text
         return sql_code
-    
+
     def __call__(self, table_schema: str, user_query: str) -> str:
         self.reset_log_info()
+        
         self.table_schema = table_schema
         self.user_query = user_query
         
@@ -87,12 +74,5 @@ class SQLGenerationAgent(LLMModelAgent):
         # generate for update
         self.question = user_query
         self.answer = f"```sql\n{sql_code}\n```"
-        if not self.cot_example or not self.cot_result:
-            self.cot_example = f'''
-                1. Table Schema:
-                {table_schema}
-                2. User query: {user_query}
-                '''
-            self.cot_result = response
         torch.cuda.empty_cache()
         return sql_code

@@ -16,40 +16,24 @@ class ClassificationAgent(LLMModelAgent):
         self.symptom = ''
     
     def design_prompt(self, few_shot:bool=False) -> str:
-        if not self.cot_example or not self.cot_result:
-            prompt = f'''
-            You have the following list of disease options:
-            {self.disease_options}
-
-            You have the following patient information:
-            {self.symptom}
-
-            Please analyze briefly step-by-step. Provide only the essential reasoning in short sentences:
-            A. ...
-            B. ...
-            Finally, make a final prediction in the format: <number>. <diagnosis>
+        initial_text = "You are a professional medical doctor. Your task is to analyze the patient's symptoms and provide a diagnosis."
+        middle_text = ''
+        if few_shot:
+            middle_text = f'''
+            Below are some simple examples of successful previous predictions with analysis.
+        
+            {{few_shot_text}}
             '''
-
-            
-        else:
-            initial_text = "You are a professional medical doctor. Your task is to analyze the patient's symptoms and provide a diagnosis."
-            middle_text = ''
-            if few_shot:
-                middle_text = f'''
-                Below are some simple examples of successful previous predictions with analysis.
-            
-                {{few_shot_text}}
-                '''
-            main_text = f'''
-            All possible diagnoses for you to choose from are listed below (one diagnosis per line, in the format of <number>. <diagnosis>):
-            {self.disease_options}
-            
-            Here is the case you need to diagnose:
-            {self.symptom}
-            
-            Please follow a concise analysis process, using short sentences for key reasoning steps, and provide the final prediction in this format: <number>. <diagnosis>.
-            '''
-            prompt = initial_text + middle_text + main_text
+        main_text = f'''
+        All possible diagnoses for you to choose from are listed below (one diagnosis per line, in the format of <number>. <diagnosis>):
+        {self.disease_options}
+        
+        Here is the case you need to diagnose:
+        {self.symptom}
+        
+        Please follow a concise analysis process, using short sentences for key reasoning steps, and provide the final prediction in this format: <number>. <diagnosis>.
+        '''
+        prompt = initial_text + middle_text + main_text
         
         return strip_all_lines(prompt.strip())
     
@@ -88,10 +72,6 @@ class ClassificationAgent(LLMModelAgent):
         self.question = self.symptom
         self.answer = response + f"\nFinal Answer: {str(prediction)}. {label2desc[int(prediction)]}"
         
-        # update the example and result for cot(chain of thought)
-        if not self.cot_example or not self.cot_result:
-            self.cot_example = self.symptom
-            self.cot_result = response
         torch.cuda.empty_cache()
         return prediction
 

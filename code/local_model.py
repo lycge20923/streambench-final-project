@@ -17,12 +17,10 @@ class LLMModelAgent(Agent):
         self.rag = RAG(self.config["rag"])
         
         # store for prompt
-        self.cot_example, self.cot_result = "", ""
         self.question, self.answer = "", ""
         
         # set the max token for the output
         self.max_token = self.config["max_tokens"]
-        self.cot_max_token = 128
         
     def _initialize_model(self) -> AutoModelForCausalLM:
         """
@@ -90,12 +88,6 @@ class LLMModelAgent(Agent):
         return correctness
 
     def get_llm_response(self, query:str) -> str:
-        # change the max token if it need to get the cot text
-        if not self.cot_example or not self.cot_result:
-            self.config["max_tokens"] = self.cot_max_token
-        else:
-            self.config["max_tokens"] = self.max_token
-        
         # design the prompt
         prompt_zero_shot = self.design_prompt(few_shot=False)
         prompt_few_shot = self.design_prompt(few_shot=True)
