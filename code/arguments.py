@@ -28,7 +28,7 @@ class RAGArguments:
         default=42
     )
     top_k: Optional[int] = field(
-        default=8
+        default=2
     )
     order: Optional[str] = field(
         default="similar_at_bottom"

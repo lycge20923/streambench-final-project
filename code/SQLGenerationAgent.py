@@ -75,4 +75,24 @@ class SQLGenerationAgent(LLMModelAgent):
         self.question = user_query
         self.answer = f"```sql\n{sql_code}\n```"
         torch.cuda.empty_cache()
+        # print("aaaaaaaaaa")
         return sql_code
+    
+
+    def update(self, correctness: bool) -> bool:
+        '''
+        store the positive response in RAG
+        '''
+        if correctness:
+            chunk = self.my_shot_template().format(question=self.question, schema=self.table_schema, answer=self.answer)
+            self.rag.insert(key=self.question, value=chunk)
+        return correctness
+
+
+    def my_shot_template(self):
+        prompt = f"""\
+        Question: {{question}}
+        Table Schema: {{schema}}
+        Answer: 
+        {{answer}}"""
+        return strip_all_lines(prompt)

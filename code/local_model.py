@@ -94,12 +94,14 @@ class LLMModelAgent(Agent):
         
         # extract from RAG
         shots = self.rag.retrieve(query=query, top_k=self.rag.top_k) if self.rag.insert_acc > 0 else []
+        # print(shots)
         
         # set the user prompt for each case, depends on some conditions
         if len(shots):
             few_shot_text = "\n\n\n".join(shots).replace("\\", "\\\\")
             try:
                 user_prompt = re.sub(pattern=r"\{few_shot_text\}",  repl=few_shot_text, string=prompt_few_shot)
+                # print(user_prompt)
             except Exception as e:
                 error_msg = f"Error ```{e}``` caused by these shots. Using the zero-shot prompt."
                 print(Fore.RED + error_msg + Fore.RESET)

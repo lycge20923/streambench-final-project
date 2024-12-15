@@ -308,7 +308,7 @@ if __name__ == "__main__":
 
     parser = ArgumentParser()
     parser.add_argument('--bench_name', type=str, required=True)
-    parser.add_argument('--model_name', type=str, default="Qwen/Qwen2.5-7B-Instruct")
+    parser.add_argument('--model_name', type=str, default="google/gemma-2-9b-it")
     parser.add_argument('--device', type=str, default="cuda:0")
     parser.add_argument('--debug', action='store_true')
     parser.add_argument('--use_8bit', action='store_true')
