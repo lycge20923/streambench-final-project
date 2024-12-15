@@ -79,13 +79,29 @@ class SQLGenerationAgent(LLMModelAgent):
         return sql_code
     
 
-    def update(self, correctness: bool) -> bool:
+    def update(self, correctness: bool, chain_of_thought=True) -> bool:
         '''
         store the positive response in RAG
         '''
+        # if correctness:
+        #     chunk = self.my_shot_template().format(question=self.question, schema=self.table_schema, answer=self.answer)
+        #     self.rag.insert(key=self.question, value=chunk)
+        # return correctness
         if correctness:
-            chunk = self.my_shot_template().format(question=self.question, schema=self.table_schema, answer=self.answer)
+            # chunk = self.my_shot_template().format(question=self.question, schema=self.table_schema, answer=self.answer)
+            # self.rag.insert(key=self.question, value=chunk)
+            if chain_of_thought:
+                cot = self.generate_response([{"role": "user", "content": self.CoT_template()}])
+                chunk = f"""\
+                Question: {self.question}
+                Answer: {cot}
+                The answer is
+                {self.answer}"""
+            else:
+                chunk = self.my_shot_template().format(question=self.question, schema=self.table_schema, answer=self.answer)
+            
             self.rag.insert(key=self.question, value=chunk)
+            
         return correctness
 
 
@@ -95,4 +111,17 @@ class SQLGenerationAgent(LLMModelAgent):
         Table Schema: {{schema}}
         Answer: 
         {{answer}}"""
+        return strip_all_lines(prompt)
+    
+
+    def CoT_template(self):
+        prompt=f"""\
+        You are an SQL expert.
+        Analyze the following questions and their corresponding SQL commands. 
+        Explain why each question corresponds to its respective SQL command. 
+        Please explain step by step in 100 words.
+        Question: {self.question}
+        SQL query: 
+        {self.answer}
+        Step-by-Step Reasoning:"""
         return strip_all_lines(prompt)
