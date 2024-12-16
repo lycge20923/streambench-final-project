@@ -1,6 +1,8 @@
 import os, sys, re
 from colorama import Fore, Style
 import torch
+import random
+random.seed(42)
 
 sys.path.append(os.getcwd())
 from utils import strip_all_lines
@@ -27,7 +29,7 @@ class SQLGenerationAgent(LLMModelAgent):
             ```sql\n<your_SQL_code>\n```"""
         else:
             prompt = f'''
-            You are performing the text-to-SQL task. Here are some examples:
+            You are performing the text-to-SQL task. Here are some correct/incorrect examples:
             
             {{few_shot_text}}
             
@@ -79,7 +81,7 @@ class SQLGenerationAgent(LLMModelAgent):
         return sql_code
     
 
-    def update(self, correctness: bool, chain_of_thought=True) -> bool:
+    def update(self, correctness: bool, chain_of_thought=True, mode=2) -> bool:
         '''
         store the positive response in RAG
         '''
@@ -91,16 +93,36 @@ class SQLGenerationAgent(LLMModelAgent):
             # chunk = self.my_shot_template().format(question=self.question, schema=self.table_schema, answer=self.answer)
             # self.rag.insert(key=self.question, value=chunk)
             if chain_of_thought:
-                cot = self.generate_response([{"role": "user", "content": self.CoT_template()}])
-                chunk = f"""\
-                Question: {self.question}
-                Answer: {cot}
-                The answer is
-                {self.answer}"""
-            else:
-                chunk = self.my_shot_template().format(question=self.question, schema=self.table_schema, answer=self.answer)
+                if mode == 0:
+                    '''Given schema'''
+                    chunk = self.my_shot_template().format(question=self.question, schema=self.table_schema, answer=self.answer)
+                elif mode == 1:
+                    '''Given the correct reson'''
+                    cot = self.generate_response([{"role": "user", "content": self.CoT_template()}])
+                    chunk = strip_all_lines(f"""\
+                    Question: {self.question}
+                    Answer: {cot}
+                    The answer is
+                    {self.answer}""")
+                    chunk = "Correct example:\n" + chunk
+                elif mode == 2:
+                    chunk = self.get_shot_template().format(question=self.question, answer=self.answer)
+                    chunk = "Correct example:\n" + chunk
             
-            self.rag.insert(key=self.question, value=chunk)
+
+            
+        else:
+            if chain_of_thought and mode == 2:
+                cot = self.generate_response([{"role": "user", "content": self.Wrong_Cot_template()}])
+                chunk = strip_all_lines(f"""\
+                Incorrect example:
+                Question: {self.question}
+                SQL command: {self.answer}
+                The reson why the sql command is incorrect:
+                {cot}""")
+                print(chunk)
+        self.rag.insert(key=self.question, value=chunk)
+
             
         return correctness
 
@@ -119,6 +141,19 @@ class SQLGenerationAgent(LLMModelAgent):
         You are an SQL expert.
         Analyze the following questions and their corresponding SQL commands. 
         Explain why each question corresponds to its respective SQL command. 
+        Please explain step by step in 100 words.
+        Question: {self.question}
+        SQL query: 
+        {self.answer}
+        Step-by-Step Reasoning:"""
+        return strip_all_lines(prompt)
+    
+
+    def Wrong_Cot_template(self):
+        prompt=f"""\
+        You are an SQL expert.
+        Analyze the following questions and their corresponding SQL commands. 
+        Explain why the corresponding SQL command for this question is "incorrect."
         Please explain step by step in 100 words.
         Question: {self.question}
         SQL query: 

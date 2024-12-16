@@ -28,10 +28,10 @@ class RAGArguments:
         default=42
     )
     top_k: Optional[int] = field(
-        default=2
+        default=8
     )
     order: Optional[str] = field(
-        default="similar_at_bottom"
+        default="similar_at_top"
     )
 
 @dataclass
