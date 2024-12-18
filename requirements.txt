@@ -14,3 +14,4 @@ protobuf
 sentencepiece
 pandas
 wandb
+python-dotenv
