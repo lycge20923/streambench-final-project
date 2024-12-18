@@ -2,6 +2,7 @@
 Welcome to the ADL final project! This guide will help you set up your environment, prepare the datasets, and implement your LLM agent. Please read through all instructions carefully.
 
 **(Note)** For the private dataset, you need to run `python setup_data.py` again to download the private SQL databases. This will take a while, so please be patient.
+
 **(New Feature)** Run with `wandb` to visualize the performance curves during streaming! See the corresponding [section](#recommended-use-weights--biases-to-track-your-experiments) for how to use it.
 
 ![Figure 0](./assets/streambench_setting.png)
@@ -138,6 +139,3 @@ python -m examples.zeroshot --use_wandb --bench_name <bench_name> --model_name <
 - Don't hesitate to ask questions if you're stuck or need clarification on any part of the project.
 
 Good luck with your implementation!
-
-# TODOs
-- [ ] Implement the MAM-StreamICL example agent
