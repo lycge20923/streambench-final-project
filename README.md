@@ -76,8 +76,8 @@
 * Conduct the following code
 
    ```
-   python3 main.py --bench_name classification_public --output_path <results_path> # for classification
-   python3 main.py --bench_name sql_generation_public --output_path <results_path> # for text-to-sql
+   python3 main.py --bench_name classification_public --output_path <results_path> #for classification
+   python3 main.py --bench_name sql_generation_public --output_path <results_path> #for text-to-sql
    ```
 
    * Ensure that ```<results_path>``` includes at least one directory level. For example:

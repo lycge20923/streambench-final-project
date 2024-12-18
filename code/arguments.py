@@ -7,7 +7,7 @@ class LLMArguments:
         default="google/gemma-2-9b-it",
         metadata={"help":"The name of llm."})
     device: Optional[str] = field(
-        default='cuda:1'
+        default='cuda:0'
     )
     use_8bit: Optional[bool] = field(
         default=False,
