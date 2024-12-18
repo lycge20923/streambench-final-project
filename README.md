@@ -75,10 +75,10 @@
 
 * Conduct the following code
 
-   ```
-   #for classification
+   ```bash
+   #classification
    python3 main.py --bench_name classification_public --output_path <results_path> 
-   #for text-to-sql
+   #text-to-sql
    python3 main.py --bench_name sql_generation_public --output_path <results_path> 
    ```
 
