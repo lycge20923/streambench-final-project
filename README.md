@@ -1,7 +1,14 @@
+# Instructions for Submitting the Private Dataset
+1. For the private dataset, you need to run `python setup_data.py` again to download the private SQL databases. This will take a while, so please be patient.
+2. If your code is implemented correctly, you can run the following script and submit the csv file:
+```
+python main.py --bench_name "classification_private" --output_path <path_to_save_csv>
+python main.py --bench_name "sql_generation_private" --output_path <path_to_save_csv>
+```
+**(Note)** At this point, you code in `main.py` should be fixed and you are not allowed to modify it anymore.
+
 # Can LLM learn with incoming streams of questions?
 Welcome to the ADL final project! This guide will help you set up your environment, prepare the datasets, and implement your LLM agent. Please read through all instructions carefully.
-
-**(Note)** For the private dataset, you need to run `python setup_data.py` again to download the private SQL databases. This will take a while, so please be patient.
 
 **(New Feature)** Run with `wandb` to visualize the performance curves during streaming! See the corresponding [section](#recommended-use-weights--biases-to-track-your-experiments) for how to use it.
 
