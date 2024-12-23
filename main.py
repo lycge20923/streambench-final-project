@@ -12,7 +12,7 @@ from code.SQLGenerationAgent import SQLGenerationAgent
 
 def _parse_args():
     parser = ArgumentParser()
-    parser.add_argument('--bench_name', type=str, required=True, choices=["classification_public", "sql_generation_public"])
+    parser.add_argument('--bench_name', type=str, required=True)
     parser.add_argument('--output_path', type=str, required=True)
     return parser.parse_args()
 
